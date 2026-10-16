@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#050810">
+    <title>FC Crossover Ultimate Custom Cards</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Rajdhani, Noto Sans JP, & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@700;900&family=Rajdhani:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        fc: ['Rajdhani', 'sans-serif'],
+                        jp: ['Noto Sans JP', 'sans-serif'],
+                    },
+                    colors: {
+                        fc: {
+                            dark: '#050810',
+                            panel: '#0d1322',
+                            ice: '#38bdf8',
+                            iceLight: '#bae6fd',
+                            flame: '#f97316',
+                            neon: '#ec4899',
+                            gold: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .fc-font {
+            font-family: 'Rajdhani', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .jp-font {
+            font-family: 'Noto Sans JP', sans-serif;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+        }
+
+        /* Perspective 3D Tilt Setup */
+        .card-perspective {
+            perspective: 1200px;
+        }
+
+        .card-inner {
+            transition: transform 0.15s ease-out, box-shadow 0.2s ease-out;
+            transform-style: preserve-3d;
+            will-change: transform;
+            background: linear-gradient(145deg, #0f172a 0%, #020617 100%);
+            border: 3px solid #38bdf8;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.35), inset 0 0 15px rgba(186, 230, 253, 0.2);
+            color: #f0f9ff;
+        }
+
+        .holo-overlay {
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.05) 25%,
+                rgba(255, 255, 255, 0.35) 50%,
+                rgba(255, 255, 255, 0.05) 75%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transition: opacity 0.2s ease;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+        }
+
+        .bg-ice-glow {
+            background: radial-gradient(circle at 50% 10%, rgba(56, 189, 248, 0.12) 0%, rgba(5, 8, 16, 0) 70%);
+        }
+    </style>
+</head>
+<body class="bg-fc-dark bg-ice-glow text-slate-100 min-h-screen font-sans antialiased selection:bg-sky-400 selection:text-slate-950 pb-16">
+
+    <header class="sticky top-0 z-30 bg-slate-950/85 backdrop-blur-md border-b border-sky-900/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-20 py-3 flex flex-wrap items-center justify-between gap-y-3">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 bg-gradient-to-tr from-sky-400 via-teal-300 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg shadow-sky-500/25 transform rotate-3">
+                    <i class="fa-solid fa-crown text-slate-950 text-xl font-black"></i>
+                </div>
+                <div>
+                    <h1 class="fc-font text-2xl sm:text-3xl font-black tracking-wider bg-gradient-to-r from-white via-sky-200 to-sky-400 bg-clip-text text-transparent">
+                        FC <span class="text-sky-400">CROSSOVER</span> VAULT
+                    </h1>
+                    <p class="text-xs text-sky-400/80 -mt-1 hidden sm:block font-medium">Anime × Football Gaming Card Showcase</p>
+                </div>
+            </div>
+
+            <div class="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2 sm:gap-3 flex-wrap">
+                <button id="manualSyncBtn" title="Sync Cloud Data Now" class="bg-slate-900 border border-sky-500/50 hover:border-sky-400 text-sky-300 font-bold px-3 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-all shadow-md">
+                    <i id="syncSpinner" class="fa-solid fa-rotate text-sky-400"></i>
+                    <span class="hidden md:inline">Sync Cloud</span>
+                </button>
+
+                <button id="exportBackupBtn" title="Export Card Database Backup" class="bg-slate-900 border border-slate-800 hover:border-sky-500 text-slate-300 font-bold p-2.5 rounded-xl text-xs flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-download text-sky-400"></i>
+                    <span class="hidden lg:inline">Export</span>
+                </button>
+
+                <button id="importBackupBtn" title="Import Card Database Backup" class="bg-slate-900 border border-slate-800 hover:border-sky-500 text-slate-300 font-bold p-2.5 rounded-xl text-xs flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-file-import text-sky-400"></i>
+                    <span class="hidden lg:inline">Import</span>
+                </button>
+                <input type="file" id="importFileInput" accept=".json" class="hidden">
+
+                <button id="lockToggleBtn" class="bg-slate-900 border border-slate-700 hover:border-sky-400 text-sky-400 font-bold px-3 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-all">
+                    <i id="lockIcon" class="fa-solid fa-lock"></i>
+                    <span id="lockStatusText" class="hidden sm:inline">Visitor Mode</span>
+                </button>
+
+                <button id="openAddModalBtn" class="bg-gradient-to-r from-sky-400 via-teal-400 to-sky-500 hover:brightness-110 text-slate-950 font-extrabold px-4 sm:px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-all shadow-lg shadow-sky-500/20 active:scale-95">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span class="hidden sm:inline">Create Card</span>
+                    <span class="sm:hidden">New</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div id="syncToast" class="mb-4 p-3 bg-teal-950/80 border border-teal-500/40 rounded-xl text-teal-300 text-xs font-semibold flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <span class="flex items-center gap-2">
+                <i class="fa-solid fa-cloud-arrow-up text-sky-400 text-sm"></i> <span id="syncToastMsg">Secure Storage Initialized (IndexedDB + Local Backup)</span>
+            </span>
+            <span id="syncBadge" class="text-[10px] bg-teal-900 text-teal-300 px-2 py-0.5 rounded font-bold uppercase">ONLINE</span>
+        </div>
+
+        <section class="bg-fc-panel/90 backdrop-blur-md border border-sky-900/40 rounded-2xl p-4 sm:p-5 mb-8 shadow-2xl">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sky-400/70 text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="Search card, player, or crossover..." 
+                        class="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-sky-400 transition-colors">
+                </div>
+
+                <div>
+                    <select id="positionFilter" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-sky-400 transition-colors">
+                        <option value="ALL">All Positions</option>
+                        <option value="ST">Attackers (ST, CF, LW, RW)</option>
+                        <option value="CAM">Midfielders (CAM, CM, CDM)</option>
+                        <option value="CB">Defenders (CB, LB, RB)</option>
+                        <option value="GK">Goalkeepers (GK)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <select id="sortBy" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-sky-400 transition-colors">
+                        <option value="rating-desc">Highest Rating (OVR)</option>
+                        <option value="rating-asc">Lowest Rating (OVR)</option>
+                        <option value="name-asc">Player Name (A-Z)</option>
+                        <option value="newest">Latest Added</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between text-xs text-slate-400 gap-2">
+                <div>
+                    Showing <span id="cardCountDisplay" class="font-bold text-sky-400">0</span> Crossover Card(s)
+                </div>
+                <button id="resetDefaultsBtn" class="text-slate-400 hover:text-sky-300 transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left"></i> Reset Preset Deck
+                </button>
+            </div>
+        </section>
+
+        <section>
+            <div id="cardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center"></div>
+
+            <div id="emptyState" class="hidden text-center py-16 px-4 bg-slate-900/30 border border-dashed border-slate-800 rounded-3xl">
+                <div class="w-16 h-16 mx-auto mb-4 bg-slate-800/80 rounded-full flex items-center justify-center text-sky-400">
+                    <i class="fa-solid fa-snowflake text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-slate-200">No crossover cards found</h3>
+                <p class="text-sm text-slate-400 mt-1 max-w-sm mx-auto">Try adjusting filters or generate a new card.</p>
+                <button id="clearFiltersBtn" class="mt-4 px-4 py-2 bg-sky-950 border border-sky-800 hover:bg-sky-900 text-sky-300 text-xs font-semibold rounded-lg transition-colors">
+                    Reset All Filters
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Card Generator / Edit Modal -->
+    <div id="cardModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-fc-panel border border-sky-900/60 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
+            <div class="sticky top-0 bg-fc-panel border-b border-slate-800 px-6 py-4 flex items-center justify-between z-10">
+                <h2 id="modalTitle" class="fc-font text-xl font-black tracking-wider text-sky-400 flex items-center gap-2">
+                    <i class="fa-solid fa-crown"></i> CUSTOM CARD GENERATOR
+                </h2>
+                <button id="closeModalBtn" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="cardForm" class="p-6 space-y-5">
+                <input type="hidden" id="cardEditId" value="">
+
+                <div>
+                    <h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider mb-3">1. Main Card Info & Unique ID</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Unique Card ID</label>
+                            <input type="text" id="formCardId" required placeholder="crossover-custom-1" 
+                                class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-sky-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Player Name</label>
+                            <input type="text" id="formName" required placeholder="JUDE BELLINGHAM" 
+                                class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-sky-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Crossover Subtitle</label>
+                            <input type="text" id="formSubtitle" required placeholder="ICE QUEEN" 
+                                class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-sky-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Overall Rating (OVR)</label>
+                            <input type="number" id="formRating" min="1" max="99" required placeholder="98" 
+                                class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-sky-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Position</label>
+                            <select id="formPosition" required class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-sky-400">
+                                <option value="ST">ST - Striker</option>
+                                <option value="CF">CF - Center Forward</option>
+                                <option value="LW">LW - Left Wing</option>
+                                <option value="RW">RW - Right Wing</option>
+                                <option value="CAM">CAM - Attacking Midfield</option>
+                                <option value="CM">CM - Central Midfield</option>
+                                <option value="CDM">CDM - Defensive Midfield</option>
+                                <option value="CB">CB - Center Back</option>
+                                <option value="LB">LB - Left Back</option>
+                                <option value="RB">RB - Right Back</option>
+                                <option value="GK">GK - Goalkeeper</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider mb-3">2. Badges & JP Accent</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Club Logo URL</label>
+                            <input type="url" id="formClubLogo" placeholder="https://..." 
+                                class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-sky-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Country Flag URL</label>
+                            <input type="url" id="formNationFlag" placeholder="https://..." 
+                                class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-sky-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Vertical JP Text</label>
+                            <input type="text" id="formJpText" placeholder="氷の女王" 
+                                class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-sky-400">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider mb-3">3. Artwork & Details</h3>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Quote / Tagline</label>
+                            <input type="text" id="formQuote" placeholder="&quot;IT'S NOT LIKE I LIKE YOU...&quot;" 
+                                class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-sky-400">
+                        </div>
+                    </div>
+
+                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Card Image URL</label>
+                            <input type="url" id="formImageUrl" placeholder="https://..." 
+                                class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:outline-none focus:border-sky-400">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-sky-400 mb-1"><i class="fa-solid fa-cloud-arrow-up"></i> Upload Artwork from Phone Gallery</label>
+                            <input type="file" id="formImageFile" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-sky-950 file:text-sky-300 hover:file:bg-sky-900 cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-bold text-sky-400 uppercase tracking-wider mb-3">4. Player Stats</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-6 gap-2">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1 text-center font-bold">PAC</label>
+                            <input type="number" id="statPac" min="1" max="99" value="93" required class="w-full py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-center font-extrabold text-sky-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1 text-center font-bold">SHO</label>
+                            <input type="number" id="statSho" min="1" max="99" value="94" required class="w-full py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-center font-extrabold text-sky-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1 text-center font-bold">PAS</label>
+                            <input type="number" id="statPas" min="1" max="99" value="98" required class="w-full py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-center font-extrabold text-sky-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1 text-center font-bold">DRI</label>
+                            <input type="number" id="statDri" min="1" max="99" value="97" required class="w-full py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-center font-extrabold text-sky-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1 text-center font-bold">DEF</label>
+                            <input type="number" id="statDef" min="1" max="99" value="78" required class="w-full py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-center font-extrabold text-sky-400">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1 text-center font-bold">PHY</label>
+                            <input type="number" id="statPhy" min="1" max="99" value="90" required class="w-full py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-center font-extrabold text-sky-400">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-slate-800 flex justify-end gap-3">
+                    <button type="button" id="cancelModalBtn" class="px-5 py-2.5 rounded-xl border border-slate-800 text-slate-300 text-xs font-bold hover:bg-slate-800 transition-colors">Cancel</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-400 to-teal-400 text-slate-950 text-xs font-black hover:opacity-90 transition-opacity shadow-lg shadow-sky-500/20">
+                        Save Card Securely
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Detail View Modal -->
+    <div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-fc-panel border border-sky-900/60 rounded-3xl max-w-lg w-full p-6 relative shadow-2xl">
+            <button id="closeDetailModalBtn" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="text-center mb-4">
+                <h3 class="fc-font text-2xl font-black tracking-wider text-sky-400" id="detailCardTitle">CARD DETAILS</h3>
+            </div>
+
+            <div id="detailCardContainer" class="flex justify-center mb-6"></div>
+
+            <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
+                <button id="deleteCardBtn" class="px-4 py-2 bg-rose-950/60 border border-rose-800/80 hover:bg-rose-900 text-rose-300 text-xs font-bold rounded-xl transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-trash"></i> Delete Card
+                </button>
+                <div class="flex gap-2">
+                    <label id="uploadArtworkLabel" class="hidden px-4 py-2 bg-sky-950 border border-sky-800 hover:bg-sky-900 text-sky-300 text-xs font-bold rounded-xl transition-colors cursor-pointer items-center gap-2">
+                        <i class="fa-solid fa-upload"></i> Upload Photo
+                        <input type="file" id="detailImageUpload" accept="image/*" class="hidden">
+                    </label>
+                    <button id="editCardBtn" class="px-5 py-2 bg-sky-400 hover:bg-sky-300 text-slate-950 text-xs font-extrabold rounded-xl transition-colors flex items-center gap-2 shadow-lg shadow-sky-500/20">
+                        <i class="fa-solid fa-pen"></i> Edit Card
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIN Authentication Modal -->
+    <div id="pinModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-fc-panel border border-sky-900/60 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl relative">
+            <div class="w-12 h-12 bg-sky-500/20 text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="fc-font text-xl font-black text-white tracking-wider">CREATOR MODE AUTH</h3>
+            <p class="text-xs text-slate-400 mt-1 mb-4">Enter Creator Access Password to unlock write permissions.</p>
+            
+            <input type="password" id="pinInput" placeholder="Password" 
+                class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-center text-lg tracking-widest text-white focus:outline-none focus:border-sky-400 mb-2">
+            <div id="pinError" class="text-xs text-rose-400 font-bold hidden mb-3">Incorrect password!</div>
+
+            <div class="flex gap-2 justify-center mt-3">
+                <button id="cancelPinBtn" class="px-4 py-2 bg-slate-800 text-slate-300 text-xs font-bold rounded-xl hover:bg-slate-700">Cancel</button>
+                <button id="submitPinBtn" class="px-5 py-2 bg-sky-400 text-slate-950 text-xs font-extrabold rounded-xl hover:bg-sky-300">Authenticate</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // IndexedDB Image Store
+        let db;
+        const dbPromise = new Promise((resolve, reject) => {
+            const request = indexedDB.open('FCCardImageDB', 1);
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => {
+                db = request.result;
+                resolve(db);
+            };
+            request.onupgradeneeded = (e) => {
+                const database = e.target.result;
+                if (!database.objectStoreNames.contains('images')) {
+                    database.createObjectStore('images');
+                }
+            };
+        });
+
+        async function storeImageInIDB(key, blob) {
+            await dbPromise;
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['images'], 'readwrite');
+                const store = transaction.objectStore('images');
+                const request = store.put(blob, key);
+                request.onsuccess = () => resolve(true);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function getImageFromIDB(key) {
+            await dbPromise;
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['images'], 'readonly');
+                const store = transaction.objectStore('images');
+                const request = store.get(key);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // Expanded Preset Roster with 16 Custom Crossover Cards
+        const defaultCards = [
+            {
+                id: "crossover-1",
+                name: "Cristiano Ronaldo",
+                subtitle: "Demon King",
+                rating: 99,
+                position: "ST",
+                imageUrl: "https://cdn.corenexis.com/f/Pmkz7F156H5.png",
+                jpText: "馬狼照英",
+                quote: "THE STRONGEST EGOIST",
+                stats: { pac: 97, sho: 99, pas: 91, dri: 96, def: 45, phy: 97 },
+                createdAt: 1700000000000
+            },
+            {
+                id: "crossover-2",
+                name: "Sergio Ramos",
+                subtitle: "Immortal General",
+                rating: 98,
+                position: "CB",
+                imageUrl: "https://cdn.corenexis.com/f/AZDIaLonXe2.png",
+                jpText: "不滅将軍",
+                quote: "NO WAY THROUGH MY DOMAIN",
+                stats: { pac: 88, sho: 85, pas: 84, dri: 82, def: 99, phy: 97 },
+                createdAt: 1700000001000
+            },
+            {
+                id: "crossover-3",
+                name: "Kevin De Bruyne",
+                subtitle: "Infinity Playmaker",
+                rating: 98,
+                position: "CAM",
+                imageUrl: "https://cdn.corenexis.com/f/ubR2zvmhGcq.png",
+                jpText: "無限司令",
+                quote: "CALCULATED PRECISION",
+                stats: { pac: 91, sho: 96, pas: 99, dri: 96, def: 68, phy: 88 },
+                createdAt: 1700000002000
+            },
+            {
+                id: "crossover-4",
+                name: "Lionel Messi",
+                subtitle: "Cotton Candy Beast",
+                rating: 98,
+                position: "CF",
+                imageUrl: "https://cdn.corenexis.com/f/3Y1TINUplFD.png",
+                jpText: "夢幻神童",
+                quote: "MAGIC IN EVERY TOUCH",
+                stats: { pac: 96, sho: 97, pas: 98, dri: 99, def: 65, phy: 90 },
+                createdAt: 1700000003000
+            },
+            {
+                id: "crossover-5",
+                name: "Kylian Mbappe",
+                subtitle: "Dawn Breaker",
+                rating: 99,
+                position: "RW",
+                imageUrl: "https://cdn.corenexis.com/f/KaQd3Axwsun.png",
+                jpText: "神速皇帝",
+                quote: "SPEED BEYOND DIMENSIONS",
+                stats: { pac: 99, sho: 98, pas: 94, dri: 99, def: 42, phy: 91 },
+                createdAt: 1700000004000
+            },
+            {
+                id: "crossover-6",
+                name: "Erling Haaland",
+                subtitle: "Predator Vision",
+                rating: 99,
+                position: "ST",
+                imageUrl: "https://cdn.corenexis.com/f/TmTvUlthC5W.png",
+                jpText: "捕食覚醒",
+                quote: "TERMINATOR MODE ACTIVE",
+                stats: { pac: 98, sho: 99, pas: 94, dri: 96, def: 48, phy: 97 },
+                createdAt: 1700000005000
+            },
+            {
+                id: "crossover-7",
+                name: "Neymar Jr.",
+                subtitle: "Chaos Dribbler",
+                rating: 98,
+                position: "LW",
+                imageUrl: "https://cdn.corenexis.com/f/I7wE3ivAS7Z.png",
+                jpText: "幻影舞闘",
+                quote: "DANCE ON THE EDGE",
+                stats: { pac: 99, sho: 95, pas: 96, dri: 99, def: 40, phy: 84 },
+                createdAt: 1700000006000
+            },
+            {
+                id: "crossover-8",
+                name: "Jude Bellingham",
+                subtitle: "Ice King",
+                rating: 98,
+                position: "CAM",
+                imageUrl: "https://cdn.corenexis.com/f/yVoRj9onV6B.png",
+                jpText: "氷の絶対者",
+                quote: "COLD IN THE VEINS",
+                stats: { pac: 93, sho: 94, pas: 98, dri: 97, def: 78, phy: 90 },
+                createdAt: 1700000007000
+            },
+            {
+                id: "crossover-9",
+                name: "Erling Haaland",
+                subtitle: "Void Emperor",
+                rating: 98,
+                position: "ST",
+                imageUrl: "https://cdn.corenexis.com/f/g5XNoSb6oqp.png",
+                jpText: "虚空の覇王",
+                quote: "DEVOUR ALL DEFENSES",
+                stats: { pac: 96, sho: 99, pas: 88, dri: 92, def: 48, phy: 98 },
+                createdAt: 1700000008000
+            },
+            {
+                id: "crossover-10",
+                name: "Vinicius Jr.",
+                subtitle: "Frozen Pirate King",
+                rating: 98,
+                position: "LW",
+                imageUrl: "https://cdn.corenexis.com/f/3Tqmt4qcTuk.png",
+                jpText: "漆黒天才",
+                quote: "FUTURE IS ALREADY HERE",
+                stats: { pac: 99, sho: 94, pas: 92, dri: 99, def: 40, phy: 86 },
+                createdAt: 1700000009000
+            },
+            {
+                id: "crossover-11",
+                name: "Lamine Yamal",
+                subtitle: "Shadow Prodigy",
+                rating: 97,
+                position: "RW",
+                imageUrl: "https://cdn.corenexis.com/f/1qr1tGrqv9T.png",
+                jpText: "影の神童",
+                quote: "UNSTOPPABLE POTENTIAL",
+                stats: { pac: 98, sho: 92, pas: 95, dri: 98, def: 40, phy: 80 },
+                createdAt: 1700000010000
+            },
+            {
+                id: "crossover-12",
+                name: "Mohamed Salah",
+                subtitle: "Pharaoh's Wrath",
+                rating: 98,
+                position: "RW",
+                imageUrl: "https://cdn.corenexis.com/f/KPkajtGQaAd.png",
+                jpText: "ファラオ",
+                quote: "CURSED LEFT FOOT",
+                stats: { pac: 98, sho: 96, pas: 91, dri: 97, def: 45, phy: 87 },
+                createdAt: 1700000011000
+            },
+            {
+                id: "crossover-13",
+                name: "Bukayo Saka",
+                subtitle: "Thunderclap Star",
+                rating: 97,
+                position: "RW",
+                imageUrl: "https://cdn.corenexis.com/f/nmsRqUnfWhX.png",
+                jpText: "迅雷星",
+                quote: "ELECTRIFYING THE PITCH",
+                stats: { pac: 96, sho: 92, pas: 93, dri: 96, def: 65, phy: 85 },
+                createdAt: 1700000012000
+            },
+            {
+                id: "crossover-14",
+                name: "Rodri",
+                subtitle: "Engine Sovereign",
+                rating: 98,
+                position: "CDM",
+                imageUrl: "https://cdn.corenexis.com/f/S6Tm5XW6PMe.png",
+                jpText: "核エンジン",
+                quote: "CONTROL OVER ALL CHAOS",
+                stats: { pac: 85, sho: 89, pas: 96, dri: 90, def: 98, phy: 96 },
+                createdAt: 1700000013000
+            },
+            {
+                id: "crossover-15",
+                name: "Thibaut Courtois",
+                subtitle: "Colossal Titan",
+                rating: 98,
+                position: "GK",
+                imageUrl: "https://cdn.corenexis.com/f/GQWl8BU45Gc.png",
+                jpText: "巨神壁",
+                quote: "THE UNBREAKABLE BARRIER",
+                stats: { pac: 88, sho: 85, pas: 89, dri: 90, def: 98, phy: 95 },
+                createdAt: 1700000014000
+            },
+            {
+                id: "crossover-16",
+                name: "Virgil van Dijk",
+                subtitle: "Aegis Fortress",
+                rating: 98,
+                position: "CB",
+                imageUrl: "https://cdn.corenexis.com/f/NTHn1anUxmb.png",
+                jpText: "絶対城塞",
+                quote: "YOU SHALL NOT PASS",
+                stats: { pac: 89, sho: 68, pas: 86, dri: 84, def: 99, phy: 98 },
+                createdAt: 1700000015000
+            }
+        ];
+
+        let cards = [];
+        let selectedCardId = null;
+        let isCreatorUnlocked = false;
+        const ADMIN_PIN = localStorage.getItem('fc_admin_pass') || '1234';
+
+        function updateSyncStatus(msg, state = 'ONLINE') {
+            const toastMsg = document.getElementById('syncToastMsg');
+            const syncBadge = document.getElementById('syncBadge');
+            if (toastMsg) toastMsg.textContent = msg;
+            if (syncBadge) {
+                syncBadge.textContent = state;
+                syncBadge.className = state === 'ONLINE' ? 
+                    "text-[10px] bg-teal-900 text-teal-300 px-2 py-0.5 rounded font-bold uppercase" :
+                    "text-[10px] bg-amber-900 text-amber-300 px-2 py-0.5 rounded font-bold uppercase animate-pulse";
+            }
+        }
+
+        async function loadCards() {
+            const spinner = document.getElementById('syncSpinner');
+            if (spinner) spinner.classList.add('fa-spin');
+            updateSyncStatus("Loading collection...", "SYNCING");
+
+            try {
+                const stored = localStorage.getItem('fc_cards_vault_db');
+                if (stored) {
+                    cards = JSON.parse(stored);
+                } else {
+                    cards = [...defaultCards];
+                    localStorage.setItem('fc_cards_vault_db', JSON.stringify(cards));
+                }
+                updateSyncStatus("Collection Synced (Visitor Read-Only / Creator Active)", "ONLINE");
+            } catch (err) {
+                console.error("Load error:", err);
+                cards = [...defaultCards];
+                updateSyncStatus("Loaded fallback collection", "ONLINE");
+            } finally {
+                if (spinner) spinner.classList.remove('fa-spin');
+                renderCards();
+            }
+        }
+
+        async function saveCardsDatabase() {
+            const spinner = document.getElementById('syncSpinner');
+            if (spinner) spinner.classList.add('fa-spin');
+            updateSyncStatus("Saving changes securely...", "SYNCING");
+
+            try {
+                localStorage.setItem('fc_cards_vault_db', JSON.stringify(cards));
+                updateSyncStatus("Changes saved and synced successfully!", "ONLINE");
+                renderCards();
+                return true;
+            } catch (err) {
+                console.error("Save error:", err);
+                updateSyncStatus("Error saving changes!", "ERROR");
+                alert("Failed to save changes. Storage quota may have been exceeded.");
+                return false;
+            } finally {
+                if (spinner) spinner.classList.remove('fa-spin');
+            }
+        }
+
+        function updateLockUI() {
+            const lockIcon = document.getElementById('lockIcon');
+            const lockStatusText = document.getElementById('lockStatusText');
+            const lockBtn = document.getElementById('lockToggleBtn');
+            const uploadLabel = document.getElementById('uploadArtworkLabel');
+
+            if (isCreatorUnlocked) {
+                lockIcon.className = "fa-solid fa-lock-open text-teal-400";
+                lockStatusText.textContent = "Creator Mode";
+                lockBtn.classList.add("border-teal-400");
+                if (uploadLabel) uploadLabel.classList.remove('hidden');
+                if (uploadLabel) uploadLabel.classList.add('flex');
+            } else {
+                lockIcon.className = "fa-solid fa-lock text-sky-400";
+                lockStatusText.textContent = "Visitor Mode";
+                lockBtn.classList.remove("border-teal-400");
+                if (uploadLabel) uploadLabel.classList.add('hidden');
+                if (uploadLabel) uploadLabel.classList.remove('flex');
+            }
+        }
+
+        function verifyCreatorAccess(callback) {
+            if (isCreatorUnlocked) {
+                callback();
+                return;
+            }
+
+            const pinModal = document.getElementById('pinModal');
+            const pinInput = document.getElementById('pinInput');
+            const pinError = document.getElementById('pinError');
+
+            pinInput.value = '';
+            pinError.classList.add('hidden');
+            pinModal.classList.remove('hidden');
+            setTimeout(() => pinModal.classList.remove('opacity-0'), 10);
+
+            const submitHandler = () => {
+                if (pinInput.value === ADMIN_PIN) {
+                    isCreatorUnlocked = true;
+                    updateLockUI();
+                    pinModal.classList.add('opacity-0');
+                    setTimeout(() => pinModal.classList.add('hidden'), 300);
+                    cleanup();
+                    callback();
+                } else {
+                    pinError.classList.remove('hidden');
+                }
+            };
+
+            const cancelHandler = () => {
+                pinModal.classList.add('opacity-0');
+                setTimeout(() => pinModal.classList.add('hidden'), 300);
+                cleanup();
+            };
+
+            const cleanup = () => {
+                document.getElementById('submitPinBtn').removeEventListener('click', submitHandler);
+                document.getElementById('cancelPinBtn').removeEventListener('click', cancelHandler);
+            };
+
+            document.getElementById('submitPinBtn').addEventListener('click', submitHandler);
+            document.getElementById('cancelPinBtn').addEventListener('click', cancelHandler);
+        }
+
+        async function resolveCardImage(card) {
+            if (card.id) {
+                try {
+                    const blob = await getImageFromIDB(card.id);
+                    if (blob) {
+                        return URL.createObjectURL(blob);
+                    }
+                } catch (e) {}
+            }
+            return card.imageUrl || `https://placehold.co/400x500/0369a1/ffffff?text=${encodeURIComponent(card.name)}`;
+        }
+
+        async function createCardElement(card) {
+            const cardWrapper = document.createElement('div');
+            cardWrapper.className = 'card-perspective w-full max-w-[320px] cursor-pointer group select-none';
+
+            const inner = document.createElement('div');
+            inner.className = 'card-inner relative rounded-2xl overflow-hidden p-3.5 flex flex-col justify-between h-[490px]';
+
+            const resolvedImgUrl = await resolveCardImage(card);
+
+            inner.innerHTML = `
+                <div class="absolute top-1 left-1/2 -translate-x-1/2 z-20 text-xs opacity-90">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <div class="holo-overlay absolute inset-0 z-20 rounded-2xl opacity-0 group-hover:opacity-100"></div>
+
+                <div class="absolute inset-2 z-0 rounded-xl overflow-hidden">
+                    <img src="${resolvedImgUrl}" alt="${card.name}" class="w-full h-full object-cover object-center filter brightness-95 contrast-105 group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                </div>
+
+                <div class="relative z-10 flex flex-col items-start gap-1 w-16 pt-3 pl-1">
+                    <div class="fc-font text-4xl font-black leading-none drop-shadow-md">${card.rating}</div>
+                    <div class="fc-font text-sm font-extrabold tracking-wider opacity-90 -mt-1">${card.position}</div>
+                    <div class="w-full my-1 border-b border-white/20"></div>
+
+                    ${card.clubLogo ? `<img src="${card.clubLogo}" class="w-7 h-7 object-contain drop-shadow" alt="Club" onerror="this.style.display='none'">` : ''}
+                    ${card.nationFlag ? `<img src="${card.nationFlag}" class="w-6 h-4 object-cover rounded-xs drop-shadow my-0.5" alt="Nation" onerror="this.style.display='none'">` : ''}
+
+                    <div class="text-[10px] my-0.5 opacity-80"><i class="fa-solid fa-snowflake"></i></div>
+                    ${card.jpText ? `<div class="jp-font text-[11px] font-bold tracking-widest leading-none h-20 opacity-90 pt-1">${card.jpText}</div>` : ''}
+                </div>
+
+                ${card.quote ? `
+                <div class="relative z-10 absolute right-3 top-16 max-w-[120px] text-right">
+                    <p class="text-[9px] font-serif italic font-medium leading-tight drop-shadow opacity-90">"${card.quote}"</p>
+                </div>` : ''}
+
+                <div class="relative z-10 mt-auto w-full">
+                    <div class="bg-slate-950/80 backdrop-blur-md border border-white/20 rounded-xl p-2 text-center shadow-lg relative overflow-hidden mb-2">
+                        <div class="absolute inset-0 bg-sky-400/20 opacity-30"></div>
+                        <h2 class="fc-font text-xl font-black tracking-wider leading-none text-white drop-shadow relative z-10">${card.name}</h2>
+                        <p class="text-[10px] font-bold tracking-wider text-sky-300 uppercase mt-0.5 relative z-10">${card.subtitle || 'CROSSOVER EDITION'}</p>
+                    </div>
+
+                    <div class="bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-xl p-2 grid grid-cols-6 gap-1 text-center text-xs font-bold">
+                        <div><span class="block text-[9px] text-slate-400">PAC</span><span class="fc-font text-sm text-sky-300 font-extrabold">${card.stats.pac}</span></div>
+                        <div><span class="block text-[9px] text-slate-400">SHO</span><span class="fc-font text-sm text-sky-300 font-extrabold">${card.stats.sho}</span></div>
+                        <div><span class="block text-[9px] text-slate-400">PAS</span><span class="fc-font text-sm text-sky-300 font-extrabold">${card.stats.pas}</span></div>
+                        <div><span class="block text-[9px] text-slate-400">DRI</span><span class="fc-font text-sm text-sky-300 font-extrabold">${card.stats.dri}</span></div>
+                        <div><span class="block text-[9px] text-slate-400">DEF</span><span class="fc-font text-sm text-sky-300 font-extrabold">${card.stats.def}</span></div>
+                        <div><span class="block text-[9px] text-slate-400">PHY</span><span class="fc-font text-sm text-sky-300 font-extrabold">${card.stats.phy}</span></div>
+                    </div>
+                </div>
+            `;
+
+            cardWrapper.appendChild(inner);
+
+            cardWrapper.addEventListener('mousemove', (e) => {
+                const rect = cardWrapper.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -12;
+                const rotateY = ((x - centerX) / centerX) * 12;
+                inner.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                const holo = inner.querySelector('.holo-overlay');
+                if (holo) holo.style.backgroundPosition = `${x}% ${y}%`;
+            });
+
+            cardWrapper.addEventListener('mouseleave', () => {
+                inner.style.transform = `rotateX(0deg) rotateY(0deg) scale(1)`;
+            });
+
+            cardWrapper.addEventListener('click', () => {
+                openDetailModal(card.id);
+            });
+
+            return cardWrapper;
+        }
+
+        async function renderCards() {
+            const grid = document.getElementById('cardGrid');
+            const emptyState = document.getElementById('emptyState');
+            const countDisplay = document.getElementById('cardCountDisplay');
+
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const searchQuery = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+            const positionVal = document.getElementById('positionFilter')?.value || 'ALL';
+            const sortByVal = document.getElementById('sortBy')?.value || 'rating-desc';
+
+            let filtered = cards.filter(card => {
+                const matchesSearch = (card.name || '').toLowerCase().includes(searchQuery) || 
+                                      (card.subtitle || '').toLowerCase().includes(searchQuery) ||
+                                      (card.id || '').toLowerCase().includes(searchQuery);
+                
+                let matchesPos = true;
+                if (positionVal === 'ST') matchesPos = ['ST', 'CF', 'LW', 'RW'].includes(card.position);
+                else if (positionVal === 'CAM') matchesPos = ['CAM', 'CM', 'CDM'].includes(card.position);
+                else if (positionVal === 'CB') matchesPos = ['CB', 'LB', 'RB'].includes(card.position);
+                else if (positionVal === 'GK') matchesPos = card.position === 'GK';
+
+                return matchesSearch && matchesPos;
+            });
+
+            filtered.sort((a, b) => {
+                if (sortByVal === 'rating-desc') return (b.rating || 0) - (a.rating || 0);
+                if (sortByVal === 'rating-asc') return (a.rating || 0) - (b.rating || 0);
+                if (sortByVal === 'name-asc') return (a.name || '').localeCompare(b.name || '');
+                if (sortByVal === 'newest') return (b.createdAt || 0) - (a.createdAt || 0);
+                return 0;
+            });
+
+            if (countDisplay) countDisplay.textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                if (emptyState) emptyState.classList.remove('hidden');
+            } else {
+                if (emptyState) emptyState.classList.add('hidden');
+                for (const card of filtered) {
+                    const el = await createCardElement(card);
+                    grid.appendChild(el);
+                }
+            }
+        }
+
+        const modal = document.getElementById('cardModal');
+        const detailModal = document.getElementById('detailModal');
+
+        function openModal(isEdit = false) {
+            document.getElementById('modalTitle').innerHTML = isEdit ? 
+                `<i class="fa-solid fa-pen-to-square"></i> EDIT FC CARD` : 
+                `<i class="fa-solid fa-crown"></i> CUSTOM CARD GENERATOR`;
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('cardForm').reset();
+                document.getElementById('cardEditId').value = '';
+            }, 300);
+        }
+
+        async function openDetailModal(cardId) {
+            selectedCardId = cardId;
+            const card = cards.find(c => c.id === cardId);
+            if (!card) return;
+
+            document.getElementById('detailCardTitle').textContent = card.name;
+            const container = document.getElementById('detailCardContainer');
+            container.innerHTML = '';
+            container.appendChild(await createCardElement(card));
+
+            detailModal.classList.remove('hidden');
+            setTimeout(() => detailModal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeDetailModal() {
+            detailModal.classList.add('opacity-0');
+            setTimeout(() => {
+                detailModal.classList.add('hidden');
+                selectedCardId = null;
+            }, 300);
+        }
+
+        document.getElementById('manualSyncBtn').addEventListener('click', loadCards);
+
+        document.getElementById('exportBackupBtn').addEventListener('click', () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `FC_Crossover_Backup_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        });
+
+        document.getElementById('importBackupBtn').addEventListener('click', () => {
+            verifyCreatorAccess(() => {
+                document.getElementById('importFileInput').click();
+            });
+        });
+
+        document.getElementById('importFileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                try {
+                    const importedCards = JSON.parse(event.target.result);
+                    if (Array.isArray(importedCards)) {
+                        cards = importedCards;
+                        await saveCardsDatabase();
+                    } else {
+                        alert('Invalid backup JSON format.');
+                    }
+                } catch (err) {
+                    alert('Error parsing backup file.');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById('lockToggleBtn').addEventListener('click', () => {
+            if (isCreatorUnlocked) {
+                isCreatorUnlocked = false;
+                updateLockUI();
+            } else {
+                verifyCreatorAccess(() => {});
+            }
+        });
+
+        document.getElementById('openAddModalBtn').addEventListener('click', () => {
+            verifyCreatorAccess(() => {
+                document.getElementById('cardForm').reset();
+                document.getElementById('cardEditId').value = '';
+                document.getElementById('formCardId').value = 'custom-' + Math.random().toString(36).substring(2, 9);
+                openModal(false);
+            });
+        });
+
+        document.getElementById('closeModalBtn')?.addEventListener('click', closeModal);
+        document.getElementById('cancelModalBtn')?.addEventListener('click', closeModal);
+        document.getElementById('closeDetailModalBtn')?.addEventListener('click', closeDetailModal);
+
+        document.getElementById('editCardBtn').addEventListener('click', () => {
+            verifyCreatorAccess(() => {
+                if (!selectedCardId) return;
+                const card = cards.find(c => c.id === selectedCardId);
+                if (!card) return;
+
+                document.getElementById('cardEditId').value = card.id;
+                document.getElementById('formCardId').value = card.id;
+                document.getElementById('formName').value = card.name;
+                document.getElementById('formSubtitle').value = card.subtitle || '';
+                document.getElementById('formRating').value = card.rating;
+                document.getElementById('formPosition').value = card.position;
+                document.getElementById('formClubLogo').value = card.clubLogo || '';
+                document.getElementById('formNationFlag').value = card.nationFlag || '';
+                document.getElementById('formJpText').value = card.jpText || '';
+                document.getElementById('formQuote').value = card.quote || '';
+                document.getElementById('formImageUrl').value = card.imageUrl || '';
+
+                document.getElementById('statPac').value = card.stats.pac;
+                document.getElementById('statSho').value = card.stats.sho;
+                document.getElementById('statPas').value = card.stats.pas;
+                document.getElementById('statDri').value = card.stats.dri;
+                document.getElementById('statDef').value = card.stats.def;
+                document.getElementById('statPhy').value = card.stats.phy;
+
+                closeDetailModal();
+                setTimeout(() => openModal(true), 320);
+            });
+        });
+
+        document.getElementById('deleteCardBtn').addEventListener('click', () => {
+            verifyCreatorAccess(async () => {
+                if (!selectedCardId) return;
+                cards = cards.filter(c => c.id !== selectedCardId);
+                await saveCardsDatabase();
+                closeDetailModal();
+            });
+        });
+
+        document.getElementById('detailImageUpload').addEventListener('change', async (e) => {
+            verifyCreatorAccess(async () => {
+                const file = e.target.files[0];
+                if (!file || !selectedCardId) return;
+                await storeImageInIDB(selectedCardId, file);
+                await saveCardsDatabase();
+                openDetailModal(selectedCardId);
+            });
+        });
+
+        document.getElementById('resetDefaultsBtn').addEventListener('click', () => {
+            verifyCreatorAccess(async () => {
+                cards = [...defaultCards];
+                await saveCardsDatabase();
+            });
+        });
+
+        document.getElementById('searchInput')?.addEventListener('input', renderCards);
+        document.getElementById('positionFilter')?.addEventListener('change', renderCards);
+        document.getElementById('sortBy')?.addEventListener('change', renderCards);
+
+        document.getElementById('clearFiltersBtn')?.addEventListener('click', () => {
+            const searchInput = document.getElementById('searchInput');
+            const posFilter = document.getElementById('positionFilter');
+            const sortBy = document.getElementById('sortBy');
+
+            if (searchInput) searchInput.value = '';
+            if (posFilter) posFilter.value = 'ALL';
+            if (sortBy) sortBy.value = 'rating-desc';
+            renderCards();
+        });
+
+        document.getElementById('cardForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            verifyCreatorAccess(async () => {
+                const editId = document.getElementById('cardEditId').value;
+                const cardIdInput = document.getElementById('formCardId').value.trim();
+                const name = document.getElementById('formName').value.trim().toUpperCase();
+                const subtitle = document.getElementById('formSubtitle').value.trim().toUpperCase();
+                const rating = parseInt(document.getElementById('formRating').value) || 85;
+                const position = document.getElementById('formPosition').value;
+                const clubLogo = document.getElementById('formClubLogo').value.trim();
+                const nationFlag = document.getElementById('formNationFlag').value.trim();
+                const jpText = document.getElementById('formJpText').value.trim();
+                const quote = document.getElementById('formQuote').value.trim().toUpperCase();
+                let imageUrl = document.getElementById('formImageUrl').value.trim();
+                const imageFile = document.getElementById('formImageFile').files[0];
+
+                if (!editId && cards.some(c => c.id === cardIdInput)) {
+                    alert('A card with this Unique ID already exists. Please choose a different ID.');
+                    return;
+                }
+
+                if (!imageUrl && !imageFile) {
+                    imageUrl = `https://placehold.co/400x500/0369a1/ffffff?text=${encodeURIComponent(name)}`;
+                }
+
+                const stats = {
+                    pac: parseInt(document.getElementById('statPac').value) || 80,
+                    sho: parseInt(document.getElementById('statSho').value) || 80,
+                    pas: parseInt(document.getElementById('statPas').value) || 80,
+                    dri: parseInt(document.getElementById('statDri').value) || 80,
+                    def: parseInt(document.getElementById('statDef').value) || 80,
+                    phy: parseInt(document.getElementById('statPhy').value) || 80
+                };
+
+                const targetId = editId || cardIdInput;
+
+                if (imageFile) {
+                    await storeImageInIDB(targetId, imageFile);
+                }
+
+                if (editId) {
+                    const idx = cards.findIndex(c => c.id === editId);
+                    if (idx !== -1) {
+                        cards[idx] = {
+                            ...cards[idx],
+                            name, subtitle, rating, position, clubLogo, nationFlag, jpText, quote, imageUrl, stats
+                        };
+                    }
+                } else {
+                    const newCard = {
+                        id: targetId,
+                        name, subtitle, rating, position, clubLogo, nationFlag, jpText, quote, imageUrl, stats,
+                        createdAt: Date.now()
+                    };
+                    cards.unshift(newCard);
+                }
+
+                await saveCardsDatabase();
+                closeModal();
+            });
+        });
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadCards();
+            updateLockUI();
+        });
+    </script>
+</body>
+</html>
